@@ -1,0 +1,9 @@
+{
+  "name": "LenART — Personal Event Manager",
+  "short_name": "LenART",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f1e9",
+  "theme_color": "#f5f1e9",
+  "description": "Prywatne centrum organizacji wydarzeń"
+}
