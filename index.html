@@ -67,7 +67,33 @@ function eventNow(){return db.events.find(e=>e.id===activeId)}
 function progress(e){let tasks=e.tasks||[];return tasks.length?Math.round(tasks.filter(t=>t.done).length/tasks.length*100):0}
 function nav(){let html=NAV.map(([id,ic,label])=>`<button class="navbtn ${section===id?'active':''}" onclick="go('${id}')"><span class="ico">${ic}</span>${label}</button>`).join('');document.getElementById('sidenav').innerHTML=html;document.getElementById('mobilebar').innerHTML=NAV.slice(0,5).map(([id,ic,label])=>`<button class="${section===id?'active':''}" onclick="go('${id}')"><b>${ic}</b>${label}</button>`).join('')}
 function go(s){section=s;activeId=null;save();render()}
-function render(){nav();document.getElementById('today').textContent=new Date().toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});let v=document.getElementById('view');if(section==='home')v.innerHTML=home();else if(section==='events')v.innerHTML=eventsPage();else if(section==='archive')v.innerHTML=archivePage();else if(activeId&&eventNow())v.innerHTML=detailPage();else v.innerHTML=globalPage();bindSearch()}
+
+function render(){
+  nav();
+  document.getElementById('today').textContent=new Date().toLocaleDateString('pl-PL',{
+    weekday:'long',
+    day:'numeric',
+    month:'long',
+    year:'numeric'
+  });
+
+  let v=document.getElementById('view');
+
+  if(section==='home'){
+    v.innerHTML=home();
+  }else if(activeId&&eventNow()){
+    v.innerHTML=detailPage();
+  }else if(section==='events'){
+    v.innerHTML=eventsPage();
+  }else if(section==='archive'){
+    v.innerHTML=archivePage();
+  }else{
+    v.innerHTML=globalPage();
+  }
+
+  bindSearch();
+}
+
 function home(){let upcoming=db.events.filter(e=>e.status!=='done').sort((a,b)=>(a.date||'').localeCompare(b.date||''));let taskCount=upcoming.reduce((a,e)=>a+(e.tasks||[]).filter(t=>!t.done).length,0);let total=upcoming.reduce((a,e)=>a+(e.expenses||[]).reduce((s,x)=>s+Number(x.amount||0),0),0);return `<div class="eyebrow">PERSONAL WORKSPACE</div><div class="headingrow"><div><h1>Dzień dobry.</h1><div class="subtitle">Wszystkie ważne okazje, w jednym miejscu.</div></div><button class="btn primary" onclick="newEvent()">＋ Nowe wydarzenie</button></div>
 <div class="grid stats"><div class="card"><div class="statlabel">Aktywne wydarzenia</div><div class="statvalue">${upcoming.length}</div><div class="statnote">Twoje bieżące projekty</div></div><div class="card"><div class="statlabel">Otwarte zadania</div><div class="statvalue">${taskCount}</div><div class="statnote">Rzeczy do dopięcia</div></div><div class="card"><div class="statlabel">Zarejestrowane wydatki</div><div class="statvalue">${money(total)}</div><div class="statnote">Łącznie w aktywnych projektach</div></div><div class="card"><div class="statlabel">Wszystkie wydarzenia</div><div class="statvalue">${db.events.length}</div><div class="statnote">Aktywne i archiwalne</div></div></div>
 <div class="sectionhead"><h2>Twoje wydarzenia</h2><span>${upcoming.length} aktywne</span></div>${upcoming.length?`<div class="grid eventsgrid">${upcoming.slice(0,4).map(eventCard).join('')}</div>`:`<div class="card empty">Nie masz jeszcze żadnych wydarzeń.<br>Utwórz pierwsze wydarzenie i zacznij planowanie.</div>`}
